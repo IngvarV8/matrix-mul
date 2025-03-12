@@ -11,8 +11,9 @@ fn main() {
         let matrix1 = generate_matrix(size);
         let matrix2 = generate_matrix(size);
         //let mut result = vec![vec![0; size]; size];
-        multiply_matrices(matrix1, matrix2, size, 4);
-        //multiply_matrices(matrix1, matrix2, size, 6);
+        multiply_matrices(matrix1.clone(), matrix2.clone(), size, 4);
+        multiply_matrices(matrix1.clone(), matrix2.clone(), size, 6);
+        
     }
 }
 
@@ -80,7 +81,7 @@ fn multiply_matrices(a: Vec<Vec<i32>>, b: Vec<Vec<i32>>, size: usize, threads_co
     }
 
     let global_duration = global_start_time.elapsed();
-    println!("Took {:?} to calculate using {} threads.", global_duration, threads_count);
+    println!("Took {:?} to calculate {}x{} matrix using {} threads.", global_duration, size, size, threads_count);
 
     result
 }
