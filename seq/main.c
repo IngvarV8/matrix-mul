@@ -3,16 +3,13 @@
 #include <time.h>
 #include <string.h>
 
-#define STACK_LIMIT 50000 // Matrix size limit for stack allocation
-
 void printMatrix(int **matrix, int size);
 void populateMatrix(int **matrix, int size);
 void multiplyMatrices_ijk(int **A, int **B, int **result, int size);
 void multiplyMatrices_ikj(int **A, int **B, int **result, int size);
-void strassenMultiplication(int **A, int **B, int **C, int size);
-void multiplyZOrderStrassen(int **A, int **B, int **C, int size);
-int **allocateMatrix(int size, int useHeap);
-void freeMatrix(int **matrix, int size, int useHeap);
+int **allocateMatrix(int size);
+void freeMatrix(int **matrix, int size);
+void blockMultiply(int **A, int **B, int **C, int size, int blockSize);
 
 int main()
 {
@@ -23,50 +20,35 @@ int main()
     for (int idx = 0; idx < 3; idx++)
     {
         int size = sizes[idx];
-        int useHeap = (size > STACK_LIMIT); // Use heap if size exceeds stack limit
 
         printf("\nMultiplying matrices of size %dx%d...\n", size, size);
 
         // Allocate matrices
-        int **matrix1 = allocateMatrix(size, 0);
-        int **matrix2 = allocateMatrix(size, 0);
-        int **matrix3 = allocateMatrix(size, 0);
+        int **matrix1 = allocateMatrix(size);
+        int **matrix2 = allocateMatrix(size);
+        int **matrix3 = allocateMatrix(size);
 
         populateMatrix(matrix1, size);
         populateMatrix(matrix2, size);
 
         // IJK Multiplication
         multiplyMatrices_ijk(matrix1, matrix2, matrix3, size);
+        printMatrix(matrix3, size);
 
         // IKJ Multiplication
         multiplyMatrices_ikj(matrix1, matrix2, matrix3, size);
+        printMatrix(matrix3, size);
 
-        int **matrix4 = allocateMatrix(size, 1);
-        int **matrix5 = allocateMatrix(size, 1);
-        int **matrix6 = allocateMatrix(size, 1);
-
-        // IJK Multiplication
-        multiplyMatrices_ijk(matrix4, matrix5, matrix6, size);
-
-        // IKJ Multiplication
-        multiplyMatrices_ikj(matrix4, matrix5, matrix6, size);
-
-        /*
-        // Strassen Algorithm
-        if (size % 2 == 0) { // Strassen requires even-sized matrices
-            strassenMultiplication(matrix1, matrix2, matrix3, size);
-        }
-
-        // Z-order + Strassen
-        if (size % 2 == 0) {
-            multiplyZOrderStrassen(matrix1, matrix2, matrix3, size);
-        }
-        */
+        blockMultiply(matrix1, matrix2, matrix3, size, 16);
+        blockMultiply(matrix1, matrix2, matrix3, size, 32);
+        blockMultiply(matrix1, matrix2, matrix3, size, 64);
+        blockMultiply(matrix1, matrix2, matrix3, size, 128);
+        printMatrix(matrix3, size);
 
         // Free matrices
-        freeMatrix(matrix1, size, useHeap);
-        freeMatrix(matrix2, size, useHeap);
-        freeMatrix(matrix3, size, useHeap);
+        freeMatrix(matrix1, size);
+        freeMatrix(matrix2, size);
+        freeMatrix(matrix3, size);
     }
 
     return 0;
@@ -76,21 +58,29 @@ int main()
 
 void multiplyMatrices_ijk(int **A, int **B, int **result, int size)
 {
-    clock_t start = clock();
-
     for (int i = 0; i < size; i++)
     {
         for (int j = 0; j < size; j++)
         {
-            result[i][j] = 0; // Fix: Initialize result before summing
+            result[i][j] = 0; 
+        }
+    }
+    
+    // CLOCK START
+    clock_t start = clock();
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+        {
             for (int k = 0; k < size; k++)
             {
                 result[i][j] += A[i][k] * B[k][j];
             }
         }
     }
-
     clock_t end = clock();
+    // CLOCK END
+
     printf("IJK Algorithm: %f ms\n", (double)(end - start) * 1000.0 / CLOCKS_PER_SEC);
 }
 
@@ -100,12 +90,12 @@ void multiplyMatrices_ikj(int **A, int **B, int **result, int size)
     {
         for (int j = 0; j < size; j++)
         {
-            result[i][j] = 0; // Fix: Initialize result before summing
+            result[i][j] = 0; 
         }
     }
 
+    // CLOCK START
     clock_t start = clock();
-
     for (int i = 0; i < size; i++)
     {
         for (int k = 0; k < size; k++)
@@ -116,47 +106,62 @@ void multiplyMatrices_ikj(int **A, int **B, int **result, int size)
             }
         }
     }
-
     clock_t end = clock();
+    // CLOCK END
+
     printf("IKJ Algorithm: %f ms\n", (double)(end - start) * 1000.0 / CLOCKS_PER_SEC);
 }
 
+void blockMultiply(int **A, int **B, int **C, int size, int blockSize)
+{
+    // CLOCK START
+    clock_t start = clock();
+    for (int i = 0; i < size; i += blockSize)
+    {
+        for (int j = 0; j < size; j += blockSize)
+        {
+            for (int k = 0; k < size; k += blockSize)
+            {
+                // Multiply blocks A(i, k) * B(k, j) and add to C(i, j)
+                for (int ii = i; ii < i + blockSize && ii < size; ii++)
+                {
+                    for (int jj = j; jj < j + blockSize && jj < size; jj++)
+                    {
+                        for (int kk = k; kk < k + blockSize && kk < size; kk++)
+                        {
+                            C[ii][jj] += A[ii][kk] * B[kk][jj];
+                        }
+                    }
+                }
+            }
+        }
+    }
+    clock_t end = clock();
+    // CLOCK END
+
+    printf("Block Algorithm (Block size = %d): %f ms\n", blockSize, (double)(end - start) * 1000.0 / CLOCKS_PER_SEC);
+}
+
+
 // ===== Matrix Allocation and Freeing =====
 
-// Allocate a matrix dynamically (heap or stack)
-int **allocateMatrix(int size, int useHeap)
+// Allocate a matrix dynamically
+int **allocateMatrix(int size)
 {
     int **matrix;
 
-    if (useHeap)
+    matrix = (int **)malloc(size * sizeof(int *));
+    for (int i = 0; i < size; i++)
     {
-        printf("Using heap...\n");
-        matrix = (int **)malloc(size * sizeof(int *));
-        for (int i = 0; i < size; i++)
-        {
-            matrix[i] = (int *)malloc(size * sizeof(int));
-        }
+        matrix[i] = (int *)malloc(size * sizeof(int));
     }
-    else
-    {
-        printf("Using stack...\n");
-        static int matrixStack[STACK_LIMIT][STACK_LIMIT]; // Static to avoid stack overflow
-        matrix = (int **)malloc(size * sizeof(int *));    // Only for pointer indirection
 
-        for (int i = 0; i < size; i++)
-        {
-            matrix[i] = matrixStack[i]; // Point to the static array
-        }
-    }
     return matrix;
 }
 
-// Free dynamically allocated matrix (only if heap was used)
-void freeMatrix(int **matrix, int size, int useHeap)
+// Free dynamically allocated matrix
+void freeMatrix(int **matrix, int size)
 {
-    if (!useHeap)
-        return; // Do not free stack-based allocation
-
     for (int i = 0; i < size; i++)
     {
         free(matrix[i]);
