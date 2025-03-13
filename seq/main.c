@@ -96,8 +96,6 @@ void multiplyMatrices_ijk(int **A, int **B, int **result, int size)
 
 void multiplyMatrices_ikj(int **A, int **B, int **result, int size)
 {
-    clock_t start = clock();
-
     for (int i = 0; i < size; i++)
     {
         for (int j = 0; j < size; j++)
@@ -105,6 +103,8 @@ void multiplyMatrices_ikj(int **A, int **B, int **result, int size)
             result[i][j] = 0; // Fix: Initialize result before summing
         }
     }
+
+    clock_t start = clock();
 
     for (int i = 0; i < size; i++)
     {

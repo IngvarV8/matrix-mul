@@ -4,7 +4,7 @@ CFLAGS = -O3 -march=native -ffast-math -funroll-loops -flto -fopenmp -Wall -Wext
 LDFLAGS = -flto -fopenmp -Wl,--stack,256000000  # Increase stack size for large matrices
 
 # Target executable
-TARGET = matrix_mult.exe
+TARGET = m.exe
 
 # Source files
 SRCS = main.c
