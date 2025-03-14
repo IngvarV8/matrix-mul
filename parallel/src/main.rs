@@ -18,13 +18,20 @@ fn main() {
         let matrix1_f32: Vec<Vec<f32>> = generate_matrix_f32(size);
         let matrix2_f32: Vec<Vec<f32>> = generate_matrix_f32(size);
 
+        //println!("Integer Matrix (first {}x{}):", size, size);
+        //print_matrix(&matrix1, size);
+        
+        //println!("\nFloating-point Matrix (first {}x{}):", size, size);
+        //print_matrix_f32(&matrix1_f32, size);
+
         multiply_matrices(matrix1.clone(), matrix2.clone(), size, 1, &log_file);
         multiply_matrices(matrix1.clone(), matrix2.clone(), size, 2, &log_file);
         multiply_matrices(matrix1.clone(), matrix2.clone(), size, 4, &log_file);
         multiply_matrices(matrix1.clone(), matrix2.clone(), size, 8, &log_file);
         multiply_matrices(matrix1.clone(), matrix2.clone(), size, 12, &log_file);
         multiply_matrices(matrix1.clone(), matrix2.clone(), size, 16, &log_file);
-        //multiply_matrices(matrix1.clone(), matrix2.clone(), size, 24, &log_file);
+        multiply_matrices(matrix1.clone(), matrix2.clone(), size, 24, &log_file);
+        
 
         multiply_matrices_f32(matrix1_f32.clone(), matrix2_f32.clone(), size, 1, &log_file);
         multiply_matrices_f32(matrix1_f32.clone(), matrix2_f32.clone(), size, 2, &log_file);
@@ -32,7 +39,7 @@ fn main() {
         multiply_matrices_f32(matrix1_f32.clone(), matrix2_f32.clone(), size, 8, &log_file);
         multiply_matrices_f32(matrix1_f32.clone(), matrix2_f32.clone(), size, 12, &log_file);
         multiply_matrices_f32(matrix1_f32.clone(), matrix2_f32.clone(), size, 16, &log_file);
-        //multiply_matrices_f32(matrix1_f32.clone(), matrix2_f32.clone(), size, 24, &log_file);
+        multiply_matrices_f32(matrix1_f32.clone(), matrix2_f32.clone(), size, 24, &log_file);
     }
 }
 
@@ -77,6 +84,26 @@ fn generate_matrix_f32(size: usize) -> Vec<Vec<f32>> {
     (0..size)
         .map(|_| (0..size).map(|_| rng.random_range(0.0..100.0)).collect())
         .collect()
+}
+
+fn print_matrix(matrix: &Vec<Vec<i32>>, size: usize) {
+    let n = size.min(10);  // Limit to 10x10 or the size of the matrix if smaller
+    for row in matrix.iter().take(n) {  // Print only the first 'n' rows
+        for &elem in row.iter().take(n) {  // Print only the first 'n' elements of each row
+            print!("{:4} ", elem);
+        }
+        println!();
+    }
+}
+
+fn print_matrix_f32(matrix: &Vec<Vec<f32>>, size: usize) {
+    let n = size.min(10);  // Limit to 10x10 or the size of the matrix if smaller
+    for row in matrix.iter().take(n) {  // Print only the first 'n' rows
+        for &elem in row.iter().take(n) {  // Print only the first 'n' elements of each row
+            print!("{:6.2} ", elem);  // Printing with two decimal places
+        }
+        println!();
+    }
 }
 
 /// Multiplies matrices using multiple threads and logs performance

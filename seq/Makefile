@@ -1,7 +1,7 @@
 # Compiler and flags
 CC = gcc
-CFLAGS = -O3 -march=native -ffast-math -funroll-loops -flto -fopenmp -Wall -Wextra -Wshadow -pedantic
-LDFLAGS = -flto -fopenmp -Wl,--stack,256000000  # Increase stack size for large matrices
+CFLAGS = -O3 -march=native -funroll-loops -flto -Wall -Wextra -Wshadow -pedantic
+LDFLAGS = -flto -W
 
 # Target executable
 TARGET = m.exe
