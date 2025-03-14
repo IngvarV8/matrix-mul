@@ -42,17 +42,14 @@ int main()
 
         // IJK Multiplication (Int)
         multiplyMatrices_ijk_int(matrix1_int, matrix2_int, matrix3_int, size);
-        //printMatrixInt(matrix3_int, size);
 
         // IKJ Multiplication (Int)
         multiplyMatrices_ikj_int(matrix1_int, matrix2_int, matrix3_int, size);
-        //printMatrixInt(matrix3_int, size);
 
-        blockMultiply_int(matrix1_int, matrix2_int, matrix3_int, size, 16);
-        blockMultiply_int(matrix1_int, matrix2_int, matrix3_int, size, 32);
-        blockMultiply_int(matrix1_int, matrix2_int, matrix3_int, size, 64);
-        blockMultiply_int(matrix1_int, matrix2_int, matrix3_int, size, 128);
-        //printMatrixInt(matrix3_int, size);
+        //blockMultiply_int(matrix1_int, matrix2_int, matrix3_int, size, 16);
+        //blockMultiply_int(matrix1_int, matrix2_int, matrix3_int, size, 32);
+        //blockMultiply_int(matrix1_int, matrix2_int, matrix3_int, size, 64);
+        //blockMultiply_int(matrix1_int, matrix2_int, matrix3_int, size, 128);
 
         // Free int matrices
         freeMatrixInt(matrix1_int, size);
@@ -75,10 +72,10 @@ int main()
         multiplyMatrices_ikj_float(matrix1_float, matrix2_float, matrix3_float, size);
         //printMatrixFloat(matrix3_float, size);
 
-        blockMultiply_float(matrix1_float, matrix2_float, matrix3_float, size, 16);
-        blockMultiply_float(matrix1_float, matrix2_float, matrix3_float, size, 32);
-        blockMultiply_float(matrix1_float, matrix2_float, matrix3_float, size, 64);
-        blockMultiply_float(matrix1_float, matrix2_float, matrix3_float, size, 128);
+        //blockMultiply_float(matrix1_float, matrix2_float, matrix3_float, size, 16);
+        //blockMultiply_float(matrix1_float, matrix2_float, matrix3_float, size, 32);
+        //blockMultiply_float(matrix1_float, matrix2_float, matrix3_float, size, 64);
+        //blockMultiply_float(matrix1_float, matrix2_float, matrix3_float, size, 128);
         //printMatrixFloat(matrix3_float, size);
 
         // Free float matrices
@@ -306,7 +303,7 @@ void freeMatrixFloat(float **matrix, int size)
     free(matrix);
 }
 
-// ===== Utility Functions for Int and Float =====
+// ===== Utility Functions  =====
 
 void printMatrixInt(int **matrix, int size)
 {
@@ -351,7 +348,7 @@ void populateMatrixFloat(float **matrix, int size)
     {
         for (int j = 0; j < size; j++)
         {
-            matrix[i][j] = (float)(rand() % 100);
+            matrix[i][j] = (rand() % 100) + (rand() / (float)RAND_MAX);
         }
     }
 }
